@@ -30,6 +30,10 @@ android {
         versionName = flutter.versionName
     }
 
+    dependencies {
+    implementation(&quot;androidx.fragment:fragment-ktx:1.6.2&quot;) // ← WAJIB untuk local_auth v3
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
