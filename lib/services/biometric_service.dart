@@ -55,7 +55,7 @@ class BiometricService {
           ),
         ],
         biometricOnly: false, // false = izinkan fallback PIN/pattern OS
-        sensitiveTransaction: true, // true = tidak izinkan face 2D (Class 2)
+        sensitiveTransaction: false, // true = tidak izinkan face 2D (Class 2)
         persistAcrossBackgrounding:
             true, // dialog tetap muncul setelah app di-background
       );
