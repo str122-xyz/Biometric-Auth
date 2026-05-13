@@ -241,4 +241,92 @@ class _LoginPageState extends State<LoginPage>
       ),
     );
   }
+
+  Widget _buildBiometricScreen() {
+    final isFace = _activeMethod == _AuthMethod.face;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ScaleTransition(
+          scale: _isLoading ? _pulseAnim : const AlwaysStoppedAnimation(1.0),
+          child: Icon(
+            isFace ? Icons.face_retouching_natural : Icons.fingerprint,
+            size: 100,
+            color: Colors.teal,
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        Text(
+          _isLoading
+              ? 'Menunggu verifikasi...'
+              : isFace
+              ? 'Arahkan wajah ke kamera'
+              : 'Tempelkan jari ke sensor',
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 32),
+
+        // Error banner
+        if (_errorMessage != null) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.red[200]!),
+            ),
+            child: Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.red[700]),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // button action berdasarkan jenis error
+        if (!_isLoading) ...[
+          if (_errorCode != null && _errorMessage != null) ...[
+            if (BiometricException(
+              code: _errorCode!,
+              message: '',
+              userMessage: '',
+            ).isRetryable)
+              ElevatedButton.icon(
+                onPressed: _startBiometric,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
+          OutlinedButton(
+            onPressed: () => setState(() {
+              _activeMethod = null;
+              _errorMessage = null;
+              _errorCode = null;
+            }),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Kembali'),
+          ),
+        ],
+      ],
+    );
+  }
 }
