@@ -165,7 +165,6 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  // Selection Screen
   Widget _buildSelectionScreen() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -326,6 +325,96 @@ class _LoginPageState extends State<LoginPage>
             child: const Text('Kembali'),
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _buildPasswordForm() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Icon(Icons.lock_outlined, size: 72, color: Colors.orange),
+        const SizedBox(height: 16),
+        const Text(
+          'Login dengan Password',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 32),
+
+        // Field password
+        TextField(
+          controller: _passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            prefixIcon: const Icon(Icons.lock_outlined),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onSubmitted: (_) => _loginWithPassword(),
+        ),
+        const SizedBox(height: 12),
+
+        // Error message
+        if (_errorMessage != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              _errorMessage!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+
+        // Tombol Login
+        ElevatedButton(
+          onPressed: _isLoading ? null : _loginWithPassword,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: _isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text(
+                  'Login',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+        ),
+        const SizedBox(height: 12),
+
+        OutlinedButton(
+          onPressed: () => setState(() {
+            _activeMethod = null;
+            _errorMessage = null;
+            _passwordController.clear();
+          }),
+          style: OutlinedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text('Kembali'),
+        ),
       ],
     );
   }
