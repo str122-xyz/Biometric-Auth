@@ -52,31 +52,35 @@ class _LoginPageState extends State<LoginPage>
 
   // Deteksi hardware saat pertama buka
   Future<void> _init() async {
-    final available = await _service.isBiometricAvailable();
-    if (!available) {
+    try {
+      final available = await _service.isBiometricAvailable();
+      if (!available) {
+        setState(() => _availableMethods = [_AuthMethod.password]);
+        return;
+      }
+
+      final types = await _service.getAvailableBiometrics();
+
+      // Android face  → BiometricType.weak
+      // iOS Face ID   → BiometricType.face
+      // Fingerprint   → BiometricType.fingerprint atau BiometricType.strong
+      final hasFace =
+          types.contains(BiometricType.face) ||
+          types.contains(BiometricType.weak);
+      final hasFingerprint =
+          types.contains(BiometricType.fingerprint) ||
+          types.contains(BiometricType.strong);
+
+      setState(() {
+        _availableMethods = [
+          if (hasFace) _AuthMethod.face,
+          if (hasFingerprint) _AuthMethod.fingerprint,
+          _AuthMethod.password,
+        ];
+      });
+    } catch (e) {
       setState(() => _availableMethods = [_AuthMethod.password]);
-      return;
     }
-
-    final types = await _service.getAvailableBiometrics();
-
-    // Android face  → BiometricType.weak
-    // iOS Face ID   → BiometricType.face
-    // Fingerprint   → BiometricType.fingerprint atau BiometricType.strong
-    final hasFace =
-        types.contains(BiometricType.face) ||
-        types.contains(BiometricType.weak);
-    final hasFingerprint =
-        types.contains(BiometricType.fingerprint) ||
-        types.contains(BiometricType.strong);
-
-    setState(() {
-      _availableMethods = [
-        if (hasFace) _AuthMethod.face,
-        if (hasFingerprint) _AuthMethod.fingerprint,
-        _AuthMethod.password,
-      ];
-    });
   }
 
   // Pilih metode & mulai autentikasi
