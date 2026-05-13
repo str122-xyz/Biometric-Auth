@@ -120,4 +120,125 @@ class _LoginPageState extends State<LoginPage>
       if (e.requiresFallback) _activeMethod = _AuthMethod.password;
     });
   }
+
+  // Login dengan password
+  Future<void> _loginWithPassword() async {
+    final password = _passwordController.text.trim();
+    if (password.isEmpty) {
+      setState(() => _errorMessage = 'Password tidak boleh kosong.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (!mounted) return;
+
+    if (password == 'password123') {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Password salah. Silakan coba lagi.';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: _activeMethod == null
+              ? _buildSelectionScreen()
+              : _activeMethod == _AuthMethod.password
+              ? _buildPasswordForm()
+              : _buildBiometricScreen(),
+        ),
+      ),
+    );
+  }
+
+  // Selection Screen
+  Widget _buildSelectionScreen() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Header
+        const Icon(Icons.lock_outlined, size: 72, color: Colors.teal),
+        const SizedBox(height: 16),
+        const Text(
+          'Selamat Datang',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Pilih metode login',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 40),
+
+        ..._availableMethods.map((method) => _buildMethodCard(method)),
+      ],
+    );
+  }
+
+  Widget _buildMethodCard(_AuthMethod method) {
+    final configs = {
+      _AuthMethod.face: (
+        icon: Icons.face_retouching_natural,
+        label: 'Face ID',
+        subtitle: 'Login menggunakan wajah',
+        color: Colors.blue,
+      ),
+      _AuthMethod.fingerprint: (
+        icon: Icons.fingerprint,
+        label: 'Sidik Jari',
+        subtitle: 'Login menggunakan sidik jari',
+        color: Colors.teal,
+      ),
+      _AuthMethod.password: (
+        icon: Icons.lock_outline,
+        label: 'Password',
+        subtitle: 'Login menggunakan password',
+        color: Colors.orange,
+      ),
+    };
+
+    final config = configs[method]!;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 8,
+          ),
+          leading: CircleAvatar(
+            backgroundColor: config.color.withOpacity(0.15),
+            child: Icon(config.icon, color: config.color),
+          ),
+          title: Text(
+            config.label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(config.subtitle),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () => _selectMethod(method),
+        ),
+      ),
+    );
+  }
 }
